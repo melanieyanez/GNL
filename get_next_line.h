@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: melanieyanez <melanieyanez@student.42.f    +#+  +:+       +#+        */
+/*   By: myanez-p <myanez-p@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/18 13:36:15 by melanieyane       #+#    #+#             */
-/*   Updated: 2022/11/18 17:14:43 by melanieyane      ###   ########.fr       */
+/*   Created: 2022/11/14 11:47:35 by myanez-p          #+#    #+#             */
+/*   Updated: 2022/11/26 16:03:45 by myanez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,22 @@
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <fcntl.h>
+# include <stdarg.h>
+# include <limits.h>
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 5
 # endif
 
-void	add_to_buffer(int fd, char **stash, int *len);
-int	is_newline(char *str);
+char	*get_next_line(int fd);
+void	add_to_buffer(int fd, char **buffer);
+void	add_to_stash(char *buffer, char **stash);
+int		check_stash(char *stash);
+size_t	ft_strlen(char const *str);
+char	*ft_strcat(char *dest, char *src);
+char	*ft_strdup(const char *s1);
+char	*ft_strncpy(char *dest, char *src, unsigned int n);
+void	extract_line(int fd, char **stash, char **line);
+char	**split_stash(char *stash, char c);
 
 #endif

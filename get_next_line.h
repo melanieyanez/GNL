@@ -6,7 +6,7 @@
 /*   By: myanez-p <myanez-p@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/14 11:47:35 by myanez-p          #+#    #+#             */
-/*   Updated: 2022/11/26 16:03:45 by myanez-p         ###   ########.fr       */
+/*   Updated: 2022/12/01 16:24:36 by myanez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@
 char	*get_next_line(int fd);
 void	add_to_buffer(int fd, char **buffer);
 void	add_to_stash(char *buffer, char **stash);
-int		check_stash(char *stash);
+int		check_stash(char *stash, char c);
 size_t	ft_strlen(char const *str);
 char	*ft_strcat(char *dest, char *src);
 char	*ft_strdup(const char *s1);

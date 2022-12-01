@@ -6,7 +6,7 @@
 /*   By: myanez-p <myanez-p@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/14 11:47:38 by myanez-p          #+#    #+#             */
-/*   Updated: 2022/11/26 16:33:54 by myanez-p         ###   ########.fr       */
+/*   Updated: 2022/12/01 16:16:23 by myanez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,20 +61,31 @@ char	*ft_strdup(const char *s1)
 	return (result);
 }
 
-char	*ft_strncpy(char *dest, char *src, unsigned int n)
+char	**split_stash(char *stash, char c)
 {
-	unsigned int	i;
+	char	**result;
+	int		i;
+	int		j;
 
 	i = 0;
-	while (i < n && src[i] != '\0')
-	{
-		dest[i] = src[i];
+	j = 0;
+	result = malloc(2 * sizeof(char *));
+	if (!result)
+		return (NULL);
+	while (stash[i] != c)
 		i++;
-	}
-	while (i < n)
-	{
-		dest[i] = '\0';
-		i++;
-	}		
-	return (dest);
+	result[0] = malloc((i + 1 + 1) * sizeof(char));
+	result[1] = malloc((ft_strlen(stash) - i + 1) * sizeof(char));
+	if (!result[0] || !result[1])
+		return (NULL);
+	i = -1;
+	while (stash[++i] != c)
+		result[0][i] = stash[i];
+	result[0][i] = c;
+	result[0][i + 1] = '\0';
+	i ++;
+	while (stash[i])
+		result[1][j++] = stash[i++];
+	result[1][j] = '\0';
+	return (result);
 }

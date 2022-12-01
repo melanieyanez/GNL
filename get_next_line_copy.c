@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_copy.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: myanez-p <myanez-p@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/14 11:47:11 by myanez-p          #+#    #+#             */
-/*   Updated: 2022/12/01 18:01:06 by myanez-p         ###   ########.fr       */
+/*   Updated: 2022/12/01 17:08:49 by myanez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,15 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (stash)
-		line = ft_strcat(line, stash);
-	while (check_stash(stash, 'x') == -1)
 	{
-		add_to_buffer(fd, &buffer);
-		sleep(1);
-		printf("buffer %s\n", buffer);
-		printf("index %d\n", check_stash(buffer, '\0'));
-		if (buffer[0] == '\0')
-			return (NULL);
-		add_to_stash(buffer, &stash);
-	}	
+		line = ft_strcat(line, stash);
+	}
+	add_to_buffer(fd, &buffer);
+	if (buffer[0] == '\0')
+		return (NULL);
+	add_to_stash(buffer, &stash);
 	extract_line(fd, &stash, &line);
+	sleep(1);
 	return (line);
 }
 
@@ -51,6 +48,7 @@ void	add_to_buffer(int fd, char **buffer)
 		return ;
 	}
 	(*buffer)[BUFFER_SIZE] = '\0';
+	printf("buffer %s\n", *buffer);
 }
 
 void	add_to_stash(char *buffer, char **stash)
@@ -59,6 +57,7 @@ void	add_to_stash(char *buffer, char **stash)
 		*stash = malloc(sizeof(char) * (ft_strlen(*stash) + ft_strlen(buffer)));
 	ft_strcat(*stash, buffer);
 	printf("stash %s\n", *stash);
+	free (buffer);
 }
 
 void	extract_line(int fd, char **stash, char **line)
@@ -67,38 +66,38 @@ void	extract_line(int fd, char **stash, char **line)
 	char	*next_buffer;
 
 	result = NULL;
-	if (check_stash(*stash, 'x') != -1)
+	if (check_stash(*stash) != 0)
 	{
-		result = split_stash(*stash, 'x');
+		result = split_stash(*stash, '\n');
 		*line = result[0];
 		*stash = result[1];
 	}
 	else
-	{		
+	{
 		add_to_buffer(fd, &next_buffer);
-		if (next_buffer == NULL)
+		if (next_buffer[0] == '\0')
 			return ;
 		add_to_stash(next_buffer, stash);
 		return (extract_line(fd, stash, line));
 	}
 }
 
-int	check_stash(char *stash, char c)
+int	check_stash(char *stash)
 {
 	int	i;
 
 	i = 0;
 	if (stash == NULL)
-		return (-1);
-	while (i < ft_strlen(stash))
+		return (0);
+	while (stash[i])
 	{
-		if (stash[i] == c)
+		if (stash[i] == '\n')
 			return (i);
 		i ++;
 	}
-	return (-1);
+	return (0);
 }
-
+/*
 int	main(int argc, char *argv[])
 {
 	int		fd;
@@ -119,3 +118,4 @@ int	main(int argc, char *argv[])
 	free (line);
 	return (0);
 }
+*/

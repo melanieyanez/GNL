@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: myanez-p <myanez-p@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/14 11:47:11 by myanez-p          #+#    #+#             */
-/*   Updated: 2022/12/01 18:01:06 by myanez-p         ###   ########.fr       */
+/*   Created: 2022/12/08 12:23:47 by myanez-p          #+#    #+#             */
+/*   Updated: 2022/12/08 16:24:57 by myanez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,41 +15,51 @@
 char	*get_next_line(int fd)
 {
 	static char	*stash;
+	char		**result;
 	char		*line;
 	char		*buffer;
+	size_t		len;
 
-	line = ft_strdup("");
+	result = NULL;
+	buffer = NULL;
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	if (stash)
-		line = ft_strcat(line, stash);
-	while (check_stash(stash, 'x') == -1)
+	add_to_buffer(fd, &buffer, &len);
+	while (len > 0)
 	{
-		add_to_buffer(fd, &buffer);
-		sleep(1);
-		printf("buffer %s\n", buffer);
-		printf("index %d\n", check_stash(buffer, '\0'));
-		if (buffer[0] == '\0')
-			return (NULL);
 		add_to_stash(buffer, &stash);
-	}	
-	extract_line(fd, &stash, &line);
-	return (line);
+		if (check_stash(stash, '\n') != -1)
+		{
+			result = extract_line(stash, '\n');
+			line = result[0];
+			stash = result[1];
+			return (line);
+		}
+		add_to_buffer(fd, &buffer, &len);
+	}
+	if (ft_strlen(stash) > 0)
+	{
+		if (check_stash(stash, '\n') == -1)
+		{
+			line = ft_strdup(stash);
+			free(stash);
+			stash = NULL;
+		}
+		if (check_stash(stash, '\n') != -1)
+		{
+			result = extract_line(stash, '\n');
+			line = result[0];
+			stash = result[1];
+		}
+		return (line);
+	}
+	return (NULL);
 }
 
-void	add_to_buffer(int fd, char **buffer)
+void	add_to_buffer(int fd, char **buffer, size_t *len)
 {
-	int		len;
-
-	*buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!buffer)
-		return ;
-	len = read(fd, *buffer, BUFFER_SIZE);
-	if (len == 0 || len == -1)
-	{	
-		(*buffer)[0] = '\0';
-		return ;
-	}
+	*buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
+	*len = read(fd, *buffer, BUFFER_SIZE);
 	(*buffer)[BUFFER_SIZE] = '\0';
 }
 
@@ -58,34 +68,40 @@ void	add_to_stash(char *buffer, char **stash)
 	if (!(*stash))
 		*stash = malloc(sizeof(char) * (ft_strlen(*stash) + ft_strlen(buffer)));
 	ft_strcat(*stash, buffer);
-	printf("stash %s\n", *stash);
 }
 
-void	extract_line(int fd, char **stash, char **line)
+char	**extract_line(char *stash, char c)
 {
 	char	**result;
-	char	*next_buffer;
+	int		i;
+	int		j;
 
-	result = NULL;
-	if (check_stash(*stash, 'x') != -1)
-	{
-		result = split_stash(*stash, 'x');
-		*line = result[0];
-		*stash = result[1];
-	}
-	else
-	{		
-		add_to_buffer(fd, &next_buffer);
-		if (next_buffer == NULL)
-			return ;
-		add_to_stash(next_buffer, stash);
-		return (extract_line(fd, stash, line));
-	}
+	i = 0;
+	j = 0;
+	result = malloc(2 * sizeof(char *));
+	if (!result)
+		return (NULL);
+	while (stash[i] != c)
+		i++;
+	result[0] = malloc((i + 1 + 1) * sizeof(char));
+	result[1] = malloc((ft_strlen(stash) - i + 1) * sizeof(char));
+	if (!result[0] || !result[1])
+		return (NULL);
+	i = -1;
+	while (stash[++i] != c)
+		result[0][i] = stash[i];
+	result[0][i] = c;
+	result[0][i + 1] = '\0';
+	i ++;
+	while (stash[i])
+		result[1][j++] = stash[i++];
+	result[1][j] = '\0';
+	return (result);
 }
 
 int	check_stash(char *stash, char c)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
 	if (stash == NULL)
@@ -98,24 +114,26 @@ int	check_stash(char *stash, char c)
 	}
 	return (-1);
 }
-
+/*
 int	main(int argc, char *argv[])
 {
 	int		fd;
-	char	*line;
-	char	*stash;
 	char	*buffer;
 
-	fd = open("haricot_vert.txt", O_RDONLY);
-	stash = "";
-	line = "";
-	while (line)
-	{
-		line = get_next_line(fd);
-		printf("line %s\n", line);
-		if (line == NULL)
-			break ;
-	}
-	free (line);
+	fd = open("files/43_no_nl", O_RDONLY);
+	buffer = get_next_line(fd);
+	printf("line '%s'\n", buffer);
+	buffer = get_next_line(fd);
+	printf("line %s\n", buffer);
+	buffer = get_next_line(fd);
+	printf("line %s\n", buffer);
+	buffer = get_next_line(fd);
+	printf("line %s\n", buffer);
+	buffer = get_next_line(fd);
+	printf("line %s\n", buffer);
+	buffer = get_next_line(fd);
+	printf("line %s\n", buffer);
+	buffer = get_next_line(fd);
+	printf("line %s\n", buffer);
 	return (0);
-}
+}*/

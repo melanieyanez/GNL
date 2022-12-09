@@ -6,7 +6,7 @@
 /*   By: myanez-p <myanez-p@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/14 11:47:38 by myanez-p          #+#    #+#             */
-/*   Updated: 2022/12/08 15:03:02 by myanez-p         ###   ########.fr       */
+/*   Updated: 2022/12/09 14:30:54 by myanez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,10 @@ char	*ft_strcat(char *dest, char *src)
 	int	j;
 
 	i = 0;
+	if (src == NULL)
+		return (dest);
+	if (dest == NULL)
+		return (src);
 	while (dest[i] != '\0')
 		i++;
 	j = 0;

@@ -6,7 +6,7 @@
 /*   By: myanez-p <myanez-p@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 12:23:47 by myanez-p          #+#    #+#             */
-/*   Updated: 2022/12/08 16:24:57 by myanez-p         ###   ########.fr       */
+/*   Updated: 2022/12/09 14:26:35 by myanez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,24 +18,25 @@ char	*get_next_line(int fd)
 	char		**result;
 	char		*line;
 	char		*buffer;
-	size_t		len;
+	int			len;
 
 	result = NULL;
 	buffer = NULL;
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	add_to_buffer(fd, &buffer, &len);
-	while (len > 0)
+	while (len > 0 && check_stash(buffer, '\n') == -1)
 	{
 		add_to_stash(buffer, &stash);
-		if (check_stash(stash, '\n') != -1)
-		{
-			result = extract_line(stash, '\n');
-			line = result[0];
-			stash = result[1];
-			return (line);
-		}
 		add_to_buffer(fd, &buffer, &len);
+	}
+	if (check_stash(buffer, '\n') != -1)
+	{
+		add_to_stash(buffer, &stash);
+		result = extract_line(stash, '\n');
+		line = result[0];
+		stash = result[1];
+		return (line);
 	}
 	if (ft_strlen(stash) > 0)
 	{
@@ -56,10 +57,18 @@ char	*get_next_line(int fd)
 	return (NULL);
 }
 
-void	add_to_buffer(int fd, char **buffer, size_t *len)
+void	add_to_buffer(int fd, char **buffer, int *len)
 {
-	*buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
+	*buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!(*buffer))
+		return ;
 	*len = read(fd, *buffer, BUFFER_SIZE);
+	if (len < 0)
+	{
+		free(*buffer);
+		*buffer = NULL;
+		return ;
+	}
 	(*buffer)[BUFFER_SIZE] = '\0';
 }
 
@@ -118,22 +127,23 @@ int	check_stash(char *stash, char c)
 int	main(int argc, char *argv[])
 {
 	int		fd;
-	char	*buffer;
+	char	*line;
 
-	fd = open("files/43_no_nl", O_RDONLY);
-	buffer = get_next_line(fd);
-	printf("line '%s'\n", buffer);
-	buffer = get_next_line(fd);
-	printf("line %s\n", buffer);
-	buffer = get_next_line(fd);
-	printf("line %s\n", buffer);
-	buffer = get_next_line(fd);
-	printf("line %s\n", buffer);
-	buffer = get_next_line(fd);
-	printf("line %s\n", buffer);
-	buffer = get_next_line(fd);
-	printf("line %s\n", buffer);
-	buffer = get_next_line(fd);
-	printf("line %s\n", buffer);
+	fd = open("files/41_with_nl", O_RDONLY);
+	line = get_next_line(fd);
+	printf("line %s\n", line);
+	line = get_next_line(fd);
+	printf("line %s\n", line);
+	line = get_next_line(fd);
+	printf("line %s\n", line);
+	line = get_next_line(fd);
+	printf("line %s\n", line);
+	line = get_next_line(fd);
+	printf("line %s\n", line);
+	line = get_next_line(fd);
+	printf("line %s\n", line);
+	line = get_next_line(fd);
+	printf("line %s\n", line);
 	return (0);
-}*/
+}
+*/
